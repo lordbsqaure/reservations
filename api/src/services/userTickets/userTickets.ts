@@ -2,7 +2,10 @@ import type {
   QueryResolvers,
   MutationResolvers,
   UserTicketRelationResolvers,
+  UserTicket,
 } from 'types/graphql'
+
+import { UserInputError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 
@@ -16,36 +19,25 @@ export const userTicket: QueryResolvers['userTicket'] = ({ id }) => {
   })
 }
 
-export const createUserTicket: MutationResolvers['createUserTicket'] = async ({
-  input,
-}) => {
-  // const query = `
-  //     INSERT INTO userTicket(userId, ticketId, quantity) VALUES (${input.userId},${input.ticketId},${input.quantity})
-  //     SELECT userId,ticketId,id
-  //     FROM ticket
-  //     CROSS JOIN userTicket
-  //     WHERE (
-  //       SELECT COUNT(CASE WHEN ticketId=${input.ticketId}) FROM userTicket
-  //     ) < ticket.limit RETURNING "id";
-  //   `
-  // const test = `WITH inserted_row AS (INSERT INTO "UserTicket"("userId", "ticketId", quantity)  VALUES (${input.userId},${input.ticketId},${input.quantity}) RETURNING "id")
-  //   SELECT "id" FROM inserted_row;`
+export const createUserTicket = async ({ input }) => {
+  const query = `
+   WITH "UserTicket" AS(INSERT INTO "UserTicket" ("ticketId","userId",quantity)
+  SELECT ${input.ticketId}, ${input.userId}, ${input.quantity}
+  WHERE (
+    SELECT "limit" FROM "Ticket" WHERE id=${input.ticketId}
+) >= ((SELECT COUNT(*) FROM "UserTicket" WHERE "ticketId"=${input.ticketId})+${input.quantity})
 
-  const count = await db.userTicket.count({
-    where: {
-      ticketId: input.ticketId,
-    },
-  })
-  const limit = await db.ticket.findFirst({
-    where: {
-      id: input.ticketId,
-    },
-  })
-  if (count + input.quantity <= limit.limit) {
-    const response = await db.userTicket.create({ data: { ...input } })
-    return response
+RETURNING *)SELECT * FROM "UserTicket"
+ ;
+    `
+
+  const response: UserTicket[] = await db.$queryRawUnsafe(query)
+  if (response.length != 0) {
+    const UserTicket = response[0]
+
+    return UserTicket
   } else {
-    throw Error('quantity not available')
+    throw new UserInputError('cannot insert data')
   }
 }
 
