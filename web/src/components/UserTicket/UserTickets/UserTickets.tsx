@@ -1,14 +1,15 @@
-import { Link, routes } from '@redwoodjs/router'
-import { useMutation } from '@redwoodjs/web'
-import { toast } from '@redwoodjs/web/toast'
-
-import { QUERY } from 'src/components/UserTicket/UserTicketsCell'
-import { timeTag, truncate } from 'src/lib/formatters'
-
 import type {
   DeleteUserTicketMutationVariables,
   FindUserTickets,
 } from 'types/graphql'
+
+import { Link, routes } from '@redwoodjs/router'
+import { useMutation } from '@redwoodjs/web'
+import { toast } from '@redwoodjs/web/toast'
+
+import { useAuth } from 'src/auth'
+import { QUERY } from 'src/components/UserTicket/UserTicketsCell'
+import { timeTag, truncate } from 'src/lib/formatters'
 
 const DELETE_USER_TICKET_MUTATION = gql`
   mutation DeleteUserTicketMutation($id: Int!) {
@@ -19,6 +20,7 @@ const DELETE_USER_TICKET_MUTATION = gql`
 `
 
 const UserTicketsList = ({ userTickets }: FindUserTickets) => {
+  const { logOut } = useAuth()
   const [deleteUserTicket] = useMutation(DELETE_USER_TICKET_MUTATION, {
     onCompleted: () => {
       toast.success('UserTicket deleted')
@@ -41,6 +43,11 @@ const UserTicketsList = ({ userTickets }: FindUserTickets) => {
 
   return (
     <div className="rw-segment rw-table-wrapper-responsive">
+      <button onClick={logOut}>Log Out</button>
+      <br />
+      <Link to={routes.tickets()} className="rw-link">
+        {'move to Tickets'}
+      </Link>
       <table className="rw-table">
         <thead>
           <tr>
