@@ -5,6 +5,7 @@ import type {
   UserTicket,
 } from 'types/graphql'
 
+import { validate, validateWith, validateUniqueness } from '@redwoodjs/api'
 import { UserInputError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
@@ -19,7 +20,24 @@ export const userTicket: QueryResolvers['userTicket'] = ({ id }) => {
   })
 }
 
-export const createUserTicket = async ({ input }) => {
+export const createUserTicket = async (input: UserTicket) => {
+  validate(input.name, 'Name', {
+    presence: true,
+    exclusion: {
+      in: ['Admin', 'Owner'],
+      message: 'Sorry that name is reserved',
+    },
+    length: {
+      min: 2,
+      max: 255,
+      message:
+        'Please provide a name at least two characters long, but no more than 255',
+    },
+    format: {
+      pattern: /^[A-Za-z]+$/,
+      message: 'Name can only contain letters',
+    },
+  })
   const query = `
    WITH "UserTicket" AS(INSERT INTO "UserTicket" ("ticketId","userId",quantity)
   SELECT ${input.ticketId}, ${input.userId}, ${input.quantity}
