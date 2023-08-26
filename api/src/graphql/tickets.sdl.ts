@@ -33,8 +33,10 @@ export const schema = gql`
   }
 
   type Mutation {
-    createTicket(input: CreateTicketInput!): Ticket! @requireAuth
-    updateTicket(id: Int!, input: UpdateTicketInput!): Ticket! @requireAuth
-    deleteTicket(id: Int!): Ticket! @requireAuth
+    createTicket(input: CreateTicketInput!): Ticket!
+      @requireAuth(roles: ["admin"])
+    updateTicket(id: Int!, input: UpdateTicketInput!): Ticket!
+      @requireAuth(roles: ["admin"])
+    deleteTicket(id: Int!): Ticket! @requireAuth(roles: ["admin"])
   }
 `

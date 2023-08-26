@@ -16,6 +16,12 @@ import { useAuth } from './auth'
 const Routes = () => {
   return (
     <Router useAuth={useAuth}>
+      <Set wrap={ScaffoldLayout} title="Users" titleTo="users" buttonLabel="New User" buttonTo="newUser">
+        <Route path="/users/new" page={UserNewUserPage} name="newUser" />
+        <Route path="/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
+        <Route path="/users/{id:Int}" page={UserUserPage} name="user" />
+        <Route path="/users" page={UserUsersPage} name="users" />
+      </Set>
       <Route path="/user-tickets/{id:Int}/edit" page={UserTicketEditUserTicketPage} name="editUserTicket" />
       <Set wrap={ScaffoldLayout} title="UserTickets" titleTo="userTickets" buttonLabel="New UserTicket" buttonTo="newUserTicket">
         <Route path="/user-tickets/new" page={UserTicketNewUserTicketPage} name="newUserTicket" />
@@ -37,10 +43,6 @@ const Routes = () => {
           <Route path="/tickets" page={TicketTicketsPage} name="tickets" />
         </Set>
         <Set wrap={ScaffoldLayout} title="Users" titleTo="users" buttonLabel="New User" buttonTo="newUser">
-          <Route path="/users/new" page={UserNewUserPage} name="newUser" />
-          <Route path="/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
-          <Route path="/users/{id:Int}" page={UserUserPage} name="user" />
-          <Route path="/users" page={UserUsersPage} name="users" />
         </Set>
         <Route path="/" page={HomePage} name="home" />
       </Private>

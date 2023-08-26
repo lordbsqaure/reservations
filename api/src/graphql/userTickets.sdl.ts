@@ -13,7 +13,7 @@ export const schema = gql`
   type Query {
     userTickets: [UserTicket!]! @requireAuth
     userTicket(id: Int!): UserTicket @requireAuth
-    getUserTicket(id: Int!): [UserTicket] @skipAuth
+    getUserTicket(id: Int!): [UserTicket] @requireAuth
   }
 
   input CreateUserTicketInput {
